@@ -1,11 +1,15 @@
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.4.16'
+    id 'application'
 }
 
-group 'org.example'
+group 'com.cs474'
 version '1.0-SNAPSHOT'
 
+application {
+    mainClassName = "com.cs474.Testing"
+}
 sourceCompatibility = 1.8
 
 repositories {

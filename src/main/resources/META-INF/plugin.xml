@@ -14,9 +14,11 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <toolWindow id="My Sample Tool Window"  anchor="right" factoryClass="com.cs474.Testing"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
+
     </actions>
 </idea-plugin>
