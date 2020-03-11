@@ -1,0 +1,60 @@
+{
+  "pattern":"builder",
+
+  "facade": {
+    "facadeName":"ConcreteFacade",
+    "subsystemClasses": ["Subclass1", "Subsystem2", "Subsystem3"],
+    "facadeOperation": "start"
+  },
+
+  "factory method": {
+    "productInterfaceName": "Product",
+    "abstractFMName": "FactoryMethod",
+    "concreteProducts": [{"class": "Product1", "concFactory": "Creator1"}, {"class":  "Product2", "concFactory": "Creator2"}]
+  },
+
+  "chain of responsibility": {
+    "abstractHandlerName": "Handler",
+    "concreteHandlerName": "ConcreteHandler",
+    "nextHandler": "successor",
+    "handleRequest": "handleRequest",
+    "canHandleRequest": "canHandleRequest"
+  },
+
+  "mediator": {
+    "abstractMediator": "Mediator",
+    "concreteMediator": "ConcreteMediator",
+    "mediateFunction": "mediate",
+    "abstractColleague": "Colleague",
+    "concreteColleagues": ["Colleague1", "Colleague2", "Colleague3"]
+  },
+
+  "template method": {
+    "abstractTMName": "TemplateMethod",
+    "primitiveOperations": ["action1", "action2", "action3"],
+    "concreteTMName": "ConcreteTM",
+    "templateOperation": "templateOperation"
+  },
+
+  "visitor": {
+    "abstractElement": "Element",
+    "concreteElements": ["ElementA", "ElementB", "ElementC"],
+    "abstractVisitor": "Visitor",
+    "concreteVisitor": "ElementVisitor"
+  },
+
+  "abstract factory": {
+    "abstractFactory": "AbstractFactory",
+    "concreteFactory": "ConcreteFactory",
+    "productInterfaces": ["ProductA", "ProductB"],
+    "concProducts": [{"class": "ProductA1", "superinterface": "ProductA"}, {"class": "ProductB1", "superinterface": "ProductB"}]
+  },
+
+  "builder": {
+    "abstractBuilder": "Builder",
+    "concreteBuilder": "ConcreteBuilder",
+    "directorName": "Director",
+    "complexObjectName": "ComplexObject",
+    "buildSteps": ["buildPartA", "buildPartB", "buildPartC"]
+  }
+}
