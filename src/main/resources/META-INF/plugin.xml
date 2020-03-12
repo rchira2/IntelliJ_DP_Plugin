@@ -1,11 +1,11 @@
 <idea-plugin>
     <id>org.example.roshan_chirayil_hw2</id>
-    <name>Plugin display name here</name>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <name>Design Pattern Generator</name>
+    <vendor email="rchira2@uic.edu" url="http://www.yourcompany.com">UIC</vendor>
 
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    Easy way to inject design patterns into your code based on a input.json file.<br>
+    <em>Select one of the patterns and click generate. The input file will be read and taken care of</em>
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -14,7 +14,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="My Sample Tool Window"  anchor="right" factoryClass="com.cs474.Testing"/>
+        <toolWindow id="Design Pattern Generator"  anchor="right" factoryClass="com.cs474.DesignPatternToolWindow"/>
     </extensions>
 
     <actions>

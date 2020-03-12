@@ -51,21 +51,17 @@ public class CodeGenerator extends DPTemplateMethod {
                 throw new IllegalArgumentException("Not a valid pattern");
         }
     }
-    public static void main(String[] args) throws IOException, ParseException {
-        //create a JSON object that will be parsed
-        //JSON file has objects and key value pairs for each pattern
-        //user needs to specify the pattern at the top of the JSON file
-        //then the user finds the specific object for their pattern and modify the parameters to their liking
-        //do not change any of the parameters for patterns you are not using
-        CodeGenerator DePaCog = new CodeGenerator();
-        DePaCog.generatePattern(); //templateMethod example
-    }
 
     @Override
     protected void readInput() throws IOException, ParseException {
         //creates the JSON object and gets the pattern the user desires
-        //System.out.println(project.getBasePath() + "/input.json");
-        String filename = project.getBasePath() + "/input.json";
+        String filename;
+        if(project == null){
+            filename = "input.json";
+        }
+        else {
+            filename = project.getBasePath() + "/input.json";
+        }
         this.jo = (JSONObject) new JSONParser().parse(new FileReader(filename));
         //this.patternReq = ((String) jo.get("pattern")).toLowerCase();
         System.out.println("Requested pattern: " + patternReq);
@@ -78,23 +74,24 @@ public class CodeGenerator extends DPTemplateMethod {
         this.factory = CodeGenerator.getFactory(this.patternReq);
         Map pattern = (Map)this.jo.get(this.patternReq);
         CodeGenerator.logger.info("Do we have the right JSON map? {}", pattern);
-        String path = project.getBasePath() + "/src";
+        String path;
+        if(project == null){
+            path = "/src";
+        }
+        else{
+            path = project.getBasePath() + "/src";
+        }
         this.factory.createPattern(pattern, path);
         System.out.println("A pattern was created");
     }
 
     @Override
     protected void cleanUP() throws IOException {
-        //this function deletes all files that were in the generatedpatterns folder
-        //it is up to the user to save the previous files before generating new patterns, otherwise we may create too many
-        //files and slow down the system
-        File file = new File(System.getProperty("user.dir") + "/src/com/cs474/generatedpatterns");
-        File[] files = file.listFiles();
-        if (files != null) {
-            for (File f : files) {
-                f.delete();
-            }
-        }
+        //decide to get rid of this function
+        //this allows the user to chain build design patterns without fear of losing their work
+        //also, the pattern doesn't quite write to the source folder of the user, but when it does,
+        //this prevents their work from being deleted.
+        //this method is still here to satisfy template method
     }
 
     public void setProject(Project project) {
@@ -105,5 +102,9 @@ public class CodeGenerator extends DPTemplateMethod {
     }
     public Project getProject(){
         return project;
+    }
+
+    public String getPatternReq(){
+        return patternReq;
     }
 }

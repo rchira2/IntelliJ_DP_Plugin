@@ -1,5 +1,4 @@
 {
-  "pattern":"builder",
 
   "facade": {
     "facadeName":"ConcreteFacade",

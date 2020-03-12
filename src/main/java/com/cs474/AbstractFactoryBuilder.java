@@ -62,7 +62,7 @@ public class AbstractFactoryBuilder extends DesignPatternBuilder {
                     .addStatement("return new $L()", (String) jo.get("class")).build());
         }
 
-        //creating a new file in src/com/cs474/generatedpatterns
+        //creating a new file in src/com/cs474/generatedpatterns in the users project
         //this is where the code will be stored
         File file = new File(path);
         ArrayList<TypeSpec> allfiles = new ArrayList<TypeSpec>();

@@ -1,64 +1,144 @@
-# Homework 2
-### Description: object-oriented design and implementation of an IntelliJ plugin with the design pattern code generator from homework 1.
-### Grade: 8% + bonus up to 3% for creating an additional plugin for Eclipse.
-#### You can obtain this Git repo using the command git clone git@bitbucket.org:cs474_spring2020/homework2.git.
+Roshan Chirayil - rchira2
+#### Running:
+gradle build
+gradle runIDE
 
-## Preliminaries
-As part of the first homework assignment you gained experience with creating and managing your Git repository, you have learned many design patterns, you created your model and the object-oriented design of a design pattern code generator, you learned to create JUnit or Cucumber or FlatSpec tests, and you created your SBT or Gradle build scripts. Congratulations!
+runIDE is used to open up another IDE instance with the plugin running in order to test out the features. Must have an input.json file in the target project.
+#### Design:
+For my design, I chose to implement my plugin as a dockable Tool Window that is available on the right side of the IDE.
 
-If you haven't already done so, please create create your account at [BitBucket](https://bitbucket.org/), a Git repo management system. It is imperative that you use your UIC email account that has the extension @uic.edu. Once you create an account with your UIC address, BibBucket will assign you an academic status that allows you to create private repos. Bitbucket users with free accounts cannot create private repos, which are essential for submitting your homeworks and the course project. If you have a problem with obtaining the academic account with your UIC.EDU email address, please contact Atlassian's license and billing team and ask them to enable your academic account by filling out the [Atlassian Bitbucket academic account request form](https://www.atlassian.com/software/views/bitbucket-academic-license).
+Now, the design isn't the greatest. Since it was my first time using Swing, I had some issues with the alignment of certain components. Because of this, the plugin doesn't have the cleanest design, but that can always be improved upon later.
 
-If you have done your first homework, you can skip the rest of the prelimininaries. Your instructor created a team for this class named CS474_Spring2020. Please contact your TA, [Mr. Mohammed Siddiq](msiddi56@uic.edu) using your UIC.EDU email account and he will add you to the team repo as developers, since Mr.Siddiq already has the admin privileges. Please use your emails from the class registration roster to add you to the team and you will receive an invitation from BitBucket to join the team. Since it is a large class, please use your UIC email address for communications or Piazza and avoid emails from other accounts like funnybunny1998@gmail.com. If you don't receive a response within 24 hours, please contact us via Piazza, since it may be a case that your direct emails went to the spam folder.
+##### Usage:
+There is a list of the available design patterns that the user can select from. The user will simply select one of the patterns, and click on the generate button. That's all there is to it.
 
-Next, if you haven't done so, you will install [IntelliJ](https://www.jetbrains.com/student/) with your academic license, the JDK, the Scala runtime and the IntelliJ Scala plugin, the [Simple Build Toolkit (SBT)](https://www.scala-sbt.org/1.x/docs/index.html) or the [Gradle build tool](https://gradle.org/) and make sure that you can create, compile, and run Java and Scala programs. Please make sure that you can run [various Java tools from your chosen JDK](https://docs.oracle.com/en/java/javase/index.html).
+#### Abstraction:
+I wanted to minimize the amount of code rewriting I would have to do in order to make my plugin work with my already existing code generator. This meant that my plugin requires the user to have an input.json file in their project directory. This way, my plugin acts as a simple wrapper to my code generator. The user will select their desired plugin and click on the generate button. Then, my generatePattern() in my Code Generator class is invoke and the design pattern is created.
 
-Just to remind you, in this and all consecutive homeworks and in the course project you will use logging and configuration management frameworks. You will comment your code extensively and supply logging statements at different logging levels (e.g., TRACE, INFO, ERROR) to record information at some salient points in the executions of your programs. All input and configuration variables must be supplied through configuration files -- hardcoding these values in the source code is generally prohibited and will be punished by taking a large percentage of points from your total grade! You are expected to use [Logback](https://logback.qos.ch/) and [SLFL4J](https://www.slf4j.org/) for logging and [Typesafe Conguration Library](https://github.com/lightbend/config) for managing configuration files. These and other libraries should be imported into your project using your script [build.sbt](https://www.scala-sbt.org/1.0/docs/Basic-Def-Examples.html) or [gradle script](https://docs.gradle.org/current/userguide/writing_build_scripts.html). These libraries and frameworks are widely used in the industry, so learning them is the time well spent to improve your resumes.
+The usage of the plugin as discussed before is quite simple. Select an item from a list and then click on the generate button. 
+```java
+public MyPlugin(ToolWindow toolWindow){
+    generateButton.addActionListener(e -> {
+        depacog.setProject(project);
+        if(dpList.getSelectedValue() != null) {
+            depacog.setPatternReq(dpList.getSelectedValue().toString().toLowerCase());
+            try {
+                depacog.generatePattern();
+            } catch (IOException | ParseException ex) {
+                ex.printStackTrace();
+            }
+        }
+    });
+}
+```
+The above is all the code there is for interacting with the plugin. There is an event listener attached to the generate button. This listener will get the list value, set the pattern in our Code Generator object and finally, generate the pattern. The bit about setting the project is for us to be able to access the directory of the project in which the plugin is invoked. This enables us to read the JSON file and write to a directory within the users project.
 
-## Functionality
-In this second homework, you will create an object-oriented design and implementation of a program that runs within an [Integrated Development Environments (IDEs)](https://en.wikipedia.org/wiki/Integrated_development_environment) to generate the code for a selected design pattern and adds this generated code to an open Java project. In that, this homework is based on the previous one and uses it as a module to provide needed functionality, i.e., a call to a method within this module to generate code for a design pattern returns an object of some type that contains the generated code. Hence, you will learn the benefit of a modular design and how IDEs can be extended.
+As far as creation of the tool window goes, I created a custom class that implements the ToolWindowFactory. The tool window is registered in our plugin.xml file and is created upon the opening of a project. This class has a method called createToolWindowContent().
+```java
+public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        MyPlugin myPlugin = new MyPlugin(toolWindow);
+        myPlugin.setProject(project);
+        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        Content content = contentFactory.createContent(myPlugin.getContent(), "", false);
+        toolWindow.getContentManager().addContent(content);
+    }
+```
+In this method, we get the project that was opened and we instantiate our Plugin object. Finally, we set all the content.
 
-IDEs are extensible software applications that integrate multiple software development tools to support software engineers during the software development lifecycle to create, maintain and evolve software. Major IDEs like Intellij, Eclipse and Netbeans are extensible where software engineers can create additional tools called [plugins](https://en.wikipedia.org/wiki/Plug-in_(computing)) that can be added to IDEs without recompiling and linking the source code of the IDEs. Holistically, an IDE plugin is a package software component deployed often in a binary form with additional noncode artifacts (e.g., images, help documentation) that adheres to specific interfaces described in the IDE requirements documentation for plugins, so that a plugin can be used by the IDE via inversion control. Many companies and organizations have dedicated teams to extend the functionality of IDEs with plugins for specific needs (e.g., security or devops).
+For content, I utilized Java Swing. I used the Swing UI in order to create a design for my plugin. Due to my inexperience with Swing, the plugin is not the best looking. My Swing form consists of a root JPanel, and then a Jlist and JButton contained within. The list has the names of the patterns and the button is the generate button. There is also a JTextArea that has some instructions on usage.
 
-In this homework you will create a basic plugin for IntelliJ that will enable software engineers to generate code for a user-chosen design pattern and add it to the existing Java project opened and loaded in IntelliJ. In that, I repeat, this homework builds on the previous homework where you created a code generator for design patterns. Your plugin will activate a dockable window pane within IntelliJ that will present a selection of design patterns to the user who can choose a desired pattern to generate the code that will be added automatically to the existing open Java project.
+#### Changes to the Code Generator
+Due to the implementation of my plugin as a wrapper to the code generator that I had created prior, there were very little changes that I needed to make. The main change was to add a path variable to the DesignPatternBuilder class, so that each Builder would know the class to write the files to. Adding this path was done by getting the Project object from my ToolWindow code. I passed this Project to my Code Generator class and from there I was able to get the users project directory in order to read the input.json file and write to the specified path.
 
-You should start off by reading the [IntelliJ Plugin SDK documentation](https://www.jetbrains.org/intellij/sdk/docs/welcome.html) and practicing some basic examples to understand how to create, debug and deploy a plugin, which is an equivalent to a REPL "Hello World" application. Many tutorials exist for creating IntelliJ plugins - [Baeldung has a recent tutorial](https://www.baeldung.com/intellij-new-custom-plugin) and the [IntelliJ plugin SDK documentation](https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started.html) has a step-by-step description. There is a [website dedicated to plugin development](https://www.plugin-dev.com/intellij/) and IntelliJ has a [spreadsheet](https://docs.google.com/spreadsheets/d/1TYXZd68TbuSRYj-9qlP2TBH1fD2nbLK3OGMKKmBBFKs/edit?rm=full#gid=0) with hundreds of open-source plugin repo links. If you need visual guidance, you can find [visual tutorials on safaribooksonline or youtube](https://www.youtube.com/watch?v=fVos38m3CU4)
+As far as reading the JSON input goes, I still read the input file in order to get all the name substitutions. I no longer read the input file in order to get the desired pattern since that is done within the Tool Window and the plugin itself.
+```java
+filename = project.getBasePath() + "/input.json";
+```
+```java
+path = project.getBasePath() + "/src";
+```
+```java
+director.getBuilder().nameReplacements = nameReplacements;
+director.getBuilder().path = path;
+```
+The prior code generator only had the nameReplacements variable, this one has the path variable as well.
 
-As usual, this homework script is written using a retroscripting technique, in which the homework outlines are generally and loosely drawn, and the individual students improvise to create the implementation that fits their refined objectives. In doing so, students are expected to stay within the basic requirements of the homework and they are free to experiments. That is, it is impossible that two non-collaborating students will submit similar homeworks! Asking questions is important, **so please ask away on Piazza!**
+#### Sample JSON Input
+```json
+{
 
-Your homework can be divided roughly into five steps. First, you learn the plugin organization and functionality, the structure of the plugin's project and how its constituent elements are organized. I suggest that you choose a basic plugin implementations for IntelliJ and explore its classes, interfaces, and dependencies; load this plugin code into IntelliJ, compile it, deploy it and run it. Once you complete the first step, you will understand how the IDE interacts with its plugins. Second, you create your own model that describes an abstract plugin structure and how you fit your design pattern generation code to operate within this structure. Next, you will create an implementation of your design where you will integrate your design pattern code generator into the plugin. Fourth, you will create multiple unit tests using [JUnit framework](https://junit.org/junit5/) or some other framework like [Cucumber](https://cucumber.io/). Finally, you will install your plugin in IntelliJ, run tests, run your plugin, generate the resulting pattern implementation in target languages added to some existing open Java project, and report the results. 
+  "facade": {
+    "facadeName":"ConcreteFacade",
+    "subsystemClasses": ["Subclass1", "Subsystem2", "Subsystem3"],
+    "facadeOperation": "start"
+  },
 
-## Baseline
-To be considered for grading, your project should include at least one of your own written programs in Java (i.e., not copied examples where you renamed variables or refactored them similarly), your project should be buildable using the SBT or the Gradle, and your documentation must specify your chosen abstractions with links to specific modules where they are realized. Your documentation must include your design and model, the reasoning about pros and cons, explanations of your implementation and the chosen design patterns that you used to implement DePaCoG, and the results of your runs. Simply copying some open-source Java programs from examples and modifying them a bit (e.g., rename some variables) will result in desk-rejecting your submission.
+  "factory method": {
+    "productInterfaceName": "Product",
+    "abstractFMName": "FactoryMethod",
+    "concreteProducts": [{"class": "Product1", "concFactory": "Creator1"}, {"class":  "Product2", "concFactory": "Creator2"}]
+  },
 
-## Piazza collaboration
-You can post questions and replies, statements, comments, discussion, etc. on Piazza. For this homework, feel free to share your ideas, mistakes, code fragments, commands from scripts, and some of your technical solutions with the rest of the class, and you can ask and advise others using Piazza on where resources and sample programs can be found on the internet, how to resolve dependencies and configuration issues. When posting question and answers on Piazza, please select the appropriate folder, i.e., hw1 to ensure that all discussion threads can be easily located. Active participants and problem solvers will receive bonuses from the big brother :-) who is watching your exchanges on Piazza (i.e., your class instructor and your TA). However, *you must not describe your design or specific details related how your construct your models!*
+  "chain of responsibility": {
+    "abstractHandlerName": "Handler",
+    "concreteHandlerName": "ConcreteHandler",
+    "nextHandler": "successor",
+    "handleRequest": "handleRequest",
+    "canHandleRequest": "canHandleRequest"
+  },
 
-Since you can post your questions anonymously on pizza, there is no reason to be afraid to ask questions. Start working on this homework early and ask away! When you come to see your TA during his office hours don't ask him to debug your code - Mr.Siddiq **is prohibited** from doing so. You can discuss your design, abstractions, and show him your code to receive his feedback, but you should not ask him to solve problems for you!
+  "mediator": {
+    "abstractMediator": "Mediator",
+    "concreteMediator": "ConcreteMediator",
+    "mediateFunction": "mediate",
+    "abstractColleague": "Colleague",
+    "concreteColleagues": ["Colleague1", "Colleague2", "Colleague3"]
+  },
 
-## Git logistics
-**This is an individual homework.** Separate repositories will be created for each of your homeworks and for the course project. You will fork the repository for this homework and your fork will be **private**, no one else besides you, the TA and your course instructor will have access to your fork. Please remember to grant a read access to your repository to your TA and your instructor. In future, for the team homeworks and the course project, you should grant the write access to your forkmates, but NOT for this homework. You can commit and push your code as many times as you want. Your code will not be visible and it should not be visible to other students (except for your forkmates for a team project, but not for this homework). When you push the code into the remote repo, your instructor and the TA will see your code in your separate private fork. Making your fork public or inviting other students to join your fork for an individual homework will result in losing your grade. For grading, only the latest push timed before the deadline will be considered. **If you push after the deadline, your grade for the homework will be zero**. For more information about using the Git and Bitbucket specifically, please use this [link as the starting point](https://confluence.atlassian.com/bitbucket/bitbucket-cloud-documentation-home-221448814.html). For those of you who struggle with the Git, I recommend a book by Ryan Hodson on Ry's Git Tutorial. The other book called Pro Git is written by Scott Chacon and Ben Straub and published by Apress and it is [freely available](https://git-scm.com/book/en/v2/). There are multiple videos on youtube that go into details of the Git organization and use.
+  "template method": {
+    "abstractTMName": "TemplateMethod",
+    "primitiveOperations": ["action1", "action2", "action3"],
+    "concreteTMName": "ConcreteTM",
+    "templateOperation": "templateOperation"
+  },
 
-Please follow this naming convention while submitting your work : "Firstname_Lastname_hw2" without quotes, where you specify your first and last names **exactly as you are registered with the University system**, so that we can easily recognize your submission. I repeat, make sure that you will give both your TA and the course instructor the read/write access to your *private forked repository* so that we can leave the file feedback.txt with the explanation of the grade assigned to your homework.
+  "visitor": {
+    "abstractElement": "Element",
+    "concreteElements": ["ElementA", "ElementB", "ElementC"],
+    "abstractVisitor": "Visitor",
+    "concreteVisitor": "ElementVisitor"
+  },
 
-## Discussions and submission
-As it is mentioned above, you can post questions and replies, statements, comments, discussion, etc. on Piazza. Remember that you cannot share your code and your solutions privately, but you can ask and advise others using Piazza and StackOverflow or some other developer networks where resources and sample programs can be found on the Internet, how to resolve dependencies and configuration issues. Yet, your implementation should be your own and you cannot share it. Alternatively, you cannot copy and paste someone else's implementation and put your name on it. Your submissions will be checked for plagiarism. **Copying code from your classmates or from some sites on the Internet will result in severe academic penalties up to the termination of your enrollment in the University**. When posting question and answers on Piazza, please select the appropriate folder, i.e., hw2 to ensure that all discussion threads can be easily located.
+  "abstract factory": {
+    "abstractFactory": "AbstractFactory",
+    "concreteFactory": "ConcreteFactory",
+    "productInterfaces": ["ProductA", "ProductB"],
+    "concProducts": [{"class": "ProductA1", "superinterface": "ProductA"}, {"class": "ProductB1", "superinterface": "ProductB"}]
+  },
 
+  "builder": {
+    "abstractBuilder": "Builder",
+    "concreteBuilder": "ConcreteBuilder",
+    "directorName": "Director",
+    "complexObjectName": "ComplexObject",
+    "buildSteps": ["buildPartA", "buildPartB", "buildPartC"]
+  }
+}
+```
+Go down to the object that has the pattern you want as the key and change the values. For example, if you chose to generate the Builder Pattern, you can specify what you want your abstract builder class to be named. You can specify and number of steps in the buildSteps key. Your complex object will be the name of the class that you want to actually build. This file will be read when you click the generate button within the ToolWindow.
 
-## Submission deadline and logistics
-Sunday, March 8 at 10PM CST via the bitbucket repository. Your submission will include the code for the program, your documentation with instructions and detailed explanations on how to assemble and deploy your program along with the results of your simulation and a document that explains these results based on the characteristics and the parameters of your models, and what the limitations of your implementation are. Again, do not forget, please make sure that you will give both your TAs and your instructor the read access to your private forked repository. Your name should be shown in your README.md file and other documents. Your code should compile and run from the command line using the commands **sbt clean compile test** and **sbt clean compile run** or the corresponding commands for Gradle. Also, you project should be IntelliJ friendly, i.e., your graders should be able to import your code into IntelliJ and run from there. Use .gitignore to exlude files that should not be pushed into the repo.
+#### Sample Run
+Go ahead and enter gradle runIDE into the terminal or run the Plugin run configuration to start up a new IDE instance with the plugin running. Have an input.json file in the project directory and edit the values for whatever design pattern you want. Open up the Design Pattern Generator tool window and select the pattern you would like and click generate. 
 
+Suppose we wanted the Builder design pattern (lets use the default input.json values). We select Builder and the following .java files will be created.
+#### Limitations
+One of the big issues is the way that the plugin looks. One certain IDE color schemes, the plugin will be hard to see and use. It's a very basic design.
 
-## Evaluation criteria
-- the maximum grade for this homework is 8% with the bonus described above. Points are subtracted from this maximum grade: for example, saying that 2% is lost if some requirement is not completed means that the resulting grade will be 8%-2% => 6%; if the core homework functionality does not work, no bonus points will be given;
-- only some POJO classes are created and nothing else is done: up to 7% lost;
-- having less than five unit and/or integration tests: up to 5% lost;
-- missing comments and explanations from the submitted program: up to 5% lost;
-- logging is not used in your programs: up to 3% lost;
-- hardcoding the input values in the source code instead of using the suggested configuration libraries: up to 4% lost;
-- no instructions in README.md on how to install and run your program: up to 5% lost;
-- the plugin crashes without completing the core functionality: up to 6% lost;
-- no design and modeling documentation exists that explains your choices: up to 6% lost;
-- the deployment documentation exists but it is insufficient to understand how you assembled and deployed all components of the program: up to 5% lost;
-- the minimum grade for this homework cannot be less than zero.
+The usage of a input.json file might be a turn off to some people. They may want to have all the plugin stuff contained within itself. Errors in the json file could cause potential issues. 
 
-That's it, folks!
+File location: I was unable to figure out how to fully incorporate code into a users working code base. The methods I tried would write the code to some other package, so to avoid confusion I created a generic package where the code will write to and it is the responsibility of the user to copy and paste this code into their source folder.
+
+#### Pros to My Implementation
+One of the pros to the simple design is that it is pretty simple to use. It'll be pretty hard for a person to break the code since no user input is entered into the plugin. On the other hand, having details in the input.json file might make life hard.
+
+The input.json file, however, offers a speed alternative that manually entering each user specification would not be able to offer. If a user makes a mistake in entering their data, the plugin won't work, but they'll be able to quickly change whatever they need to, whereas a mistype could result in the user having to type everything over again. Also, the JSON input offers quick chaining of patterns. Once the overhead of setting up the JSON file is done, the user can rapidly create design patterns.
