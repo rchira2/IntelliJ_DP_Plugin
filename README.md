@@ -7,7 +7,11 @@ runIDE is used to open up another IDE instance with the plugin running in order 
 #### Design:
 For my design, I chose to implement my plugin as a dockable Tool Window that is available on the right side of the IDE.
 
+![Imgur](https://i.imgur.com/V85AxbZ.png)
+
 Now, the design isn't the greatest. Since it was my first time using Swing, I had some issues with the alignment of certain components. Because of this, the plugin doesn't have the cleanest design, but that can always be improved upon later.
+
+![Imgur](https://i.imgur.com/oXaJo24.png)
 
 ##### Usage:
 There is a list of the available design patterns that the user can select from. The user will simply select one of the patterns, and click on the generate button. That's all there is to it.
@@ -129,14 +133,66 @@ Go down to the object that has the pattern you want as the key and change the va
 
 #### Sample Run
 Go ahead and enter gradle runIDE into the terminal or run the Plugin run configuration to start up a new IDE instance with the plugin running. Have an input.json file in the project directory and edit the values for whatever design pattern you want. Open up the Design Pattern Generator tool window and select the pattern you would like and click generate. 
+Here's a shot of what that would like in default IntelliJ colorscheme with a floating window.
+
+![Imgur](https://i.imgur.com/a0TkhCl.png)
 
 Suppose we wanted the Builder design pattern (lets use the default input.json values). We select Builder and the following .java files will be created.
+
+```java
+package com.cs474.generatedpatterns;
+
+public abstract class Builder {
+  public abstract ComplexObject getResult();
+
+  public abstract void buildPartA();
+
+  public abstract void buildPartB();
+
+  public abstract void buildPartC();
+}
+
+public class ConcreteBuilder extends Builder {
+  ComplexObject complexobject = new ComplexObject();
+
+  @Override
+  public ComplexObject getResult() {
+    return complexobject;
+  }
+
+  @Override
+  public void buildPartA() {
+  }
+
+  @Override
+  public void buildPartB() {
+  }
+
+  @Override
+  public void buildPartC() {
+  }
+}
+
+public class Director {
+  Builder builder;
+
+  Director(Builder builder) {
+    this.builder = builder;
+  }
+
+  public void construct() {
+    builder.buildPartA;
+    builder.buildPartB;
+    builder.buildPartC;
+  }
+}
+```
 #### Limitations
 One of the big issues is the way that the plugin looks. One certain IDE color schemes, the plugin will be hard to see and use. It's a very basic design.
 
 The usage of a input.json file might be a turn off to some people. They may want to have all the plugin stuff contained within itself. Errors in the json file could cause potential issues. 
 
-File location: I was unable to figure out how to fully incorporate code into a users working code base. The methods I tried would write the code to some other package, so to avoid confusion I created a generic package where the code will write to and it is the responsibility of the user to copy and paste this code into their source folder.
+File location: I was unable to figure out how to fully incorporate code into a users working code base. The methods I tried would write the code to some other package, so to avoid confusion I created a generic package where the code will write to and it is the responsibility of the user to copy and paste this code into their source folder. On the bright side, this means that if a user were to potentially name one of their design pattern objects the same name as a source code file, the source code won't get overrriden, so this acts as an extra safety net.
 
 #### Pros to My Implementation
 One of the pros to the simple design is that it is pretty simple to use. It'll be pretty hard for a person to break the code since no user input is entered into the plugin. On the other hand, having details in the input.json file might make life hard.
