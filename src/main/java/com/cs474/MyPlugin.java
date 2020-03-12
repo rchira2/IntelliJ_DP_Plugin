@@ -9,30 +9,27 @@ import java.io.IOException;
 
 public class MyPlugin {
     private JScrollPane rootPane;
-    private JList list1;
-    private JTextField textField1;
-    private JTextField textField2;
-    private JTextField textField3;
-    private JTextField textField4;
-    private JTextField textField5;
     private JButton generateButton;
     private Project project;
+    private JPanel rootPanel;
+    private JList dpList;
+    private CodeGenerator depacog = new CodeGenerator();
 
     public MyPlugin(ToolWindow toolWindow){
         generateButton.addActionListener(e -> {
-            CodeGenerator d = new CodeGenerator();
-            d.setProject(project);
-            try {
-                d.generatePattern();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (ParseException ex) {
-                ex.printStackTrace();
+            depacog.setProject(project);
+            if(dpList.getSelectedValue() != null) {
+                depacog.setPatternReq(dpList.getSelectedValue().toString().toLowerCase());
+                try {
+                    depacog.generatePattern();
+                } catch (IOException | ParseException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
     }
-    public JScrollPane getContent(){
-        return rootPane;
+    public JPanel getContent(){
+        return rootPanel;
     }
 
     public void setProject(Project project) {

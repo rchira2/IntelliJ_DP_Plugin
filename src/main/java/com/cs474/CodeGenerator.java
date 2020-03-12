@@ -32,20 +32,20 @@ public class CodeGenerator extends DPTemplateMethod {
         switch(pattern) {
             case "facade":
                 return new FacadeFactory();
-            //case "visitor":
-            //    return new VisitorFactory();
-            //case "factory method":
-            //    return new FactoryMethodFactory();
-            //case "builder":
-            //    return new BuilderFactory();
-            //case "template method":
-            //    return new TemplateMethodFactory();
-            //case "chain of responsibility":
-            //    return new ChainOfResponsibilityFactory();
-            //case "mediator":
-            //    return new MediatorFactory();
-            //case "abstract factory":
-            //    return new AbstractFactoryPatternFactory();
+            case "visitor":
+                return new VisitorFactory();
+            case "factory method":
+                return new FactoryMethodFactory();
+            case "builder":
+                return new BuilderFactory();
+            case "template method":
+                return new TemplateMethodFactory();
+            case "chain of responsibility":
+                return new ChainOfResponsibilityFactory();
+            case "mediator":
+                return new MediatorFactory();
+            case "abstract factory":
+                return new AbstractFactoryPatternFactory();
             default:
                 logger.error("Something is wrong with JSON file. Input was: {}", pattern);
                 throw new IllegalArgumentException("Not a valid pattern");
@@ -67,7 +67,7 @@ public class CodeGenerator extends DPTemplateMethod {
         //System.out.println(project.getBasePath() + "/input.json");
         String filename = project.getBasePath() + "/input.json";
         this.jo = (JSONObject) new JSONParser().parse(new FileReader(filename));
-        this.patternReq = ((String) jo.get("pattern")).toLowerCase();
+        //this.patternReq = ((String) jo.get("pattern")).toLowerCase();
         System.out.println("Requested pattern: " + patternReq);
         CodeGenerator.logger.trace("This is the pattern they requested {}", patternReq);
     }
@@ -99,6 +99,9 @@ public class CodeGenerator extends DPTemplateMethod {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+    public void setPatternReq(String patternReq){
+        this.patternReq = patternReq;
     }
     public Project getProject(){
         return project;

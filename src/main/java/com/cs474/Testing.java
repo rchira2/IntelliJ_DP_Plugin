@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class Testing implements ToolWindowFactory {
-    public CodeGenerator d;
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         System.out.println(project.getBasePath());
